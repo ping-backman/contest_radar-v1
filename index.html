@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contest Radar — Discover competitions worth entering</title>
+  <meta name="description" content="Explore curated competitions and giveaways. Check prize values, eligibility, closing dates and official entry rules before entering.">
+  <meta name="theme-color" content="#0f1115"><meta property="og:type" content="website"><meta property="og:title" content="Contest Radar — Discover competitions worth entering"><meta property="og:description" content="Curated competitions with clear prize values, eligibility and closing dates.">
+  <link rel="icon" href="/assets/images/contest-placeholder.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/css/site.css">
+</head>
+<body>
+<header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="Contest Radar home"><span class="brand-mark" aria-hidden="true">✦</span><span>Contest Radar</span></a><nav class="site-nav" aria-label="Main navigation"><a href="/">Competitions</a><a href="/about.html">About</a></nav></div></header>
+<main class="container">
+  <section class="hero"><p class="eyebrow">Find your next opportunity</p><h1>Great prizes. Clear rules. Better discoveries.</h1><p>Explore curated competitions, compare the prize and eligibility at a glance, and follow the official rules before entering.</p></section>
+  <form class="toolbar" id="search-form" role="search"><label class="sr-only" for="search">Search competitions</label><input class="field search-field" id="search" name="q" type="search" placeholder="Search prizes, brands or competitions"><label class="sr-only" for="country">Eligibility country</label><select class="field" id="country" name="country"><option value="">All eligible countries</option><option value="US">United States</option><option value="GB">United Kingdom</option><option value="CA">Canada</option><option value="INT">International</option></select><label class="sr-only" for="sort">Sort competitions</label><select class="field" id="sort" name="sort"><option value="closing">Closing soon</option><option value="prize">Highest prize value</option><option value="newest">Recently verified</option><option value="title">Title A–Z</option></select><button class="button button--primary" type="submit">Find competitions <span aria-hidden="true">→</span></button></form>
+  <div class="results-bar"><span id="results-status" aria-live="polite">Loading competitions…</span><span>Check official rules before entering.</span></div>
+  <section id="contest-grid" class="contest-grid" aria-label="Competition listings"><div class="state-message">Loading competitions…</div></section>
+  <div id="pagination"></div>
+</main>
+<footer class="site-footer"><div class="container footer-inner"><span>© <span id="year">2026</span> Contest Radar</span><nav class="footer-links" aria-label="Footer"><a href="/about.html">About</a><a href="/privacy.html">Privacy</a><a href="/disclosure.html">Editorial &amp; disclosure</a></nav></div></footer>
+<button class="back-to-top" data-back-to-top aria-label="Back to top" title="Back to top">↑</button><script>document.querySelector('#year').textContent=new Date().getFullYear()</script><script type="module" src="/assets/js/home.js"></script>
+</body></html>
