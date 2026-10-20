@@ -135,6 +135,6 @@ button,input,select{font:inherit}
 .skeleton-line{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--surface-2) 25%,#2a303b 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite linear}
 .skeleton-line.title{height:20px;width:85%}
 .skeleton-line.short{width:60%}
-.skeleton-line.button{height:40px;width:100%;margin-top:auto;border-radius:10px}
+.skeleton-line.action{height:40px;width:100%;margin-top:auto;border-radius:10px}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
 @media(max-width:520px){.skeleton-image{aspect-ratio:16/9}}
