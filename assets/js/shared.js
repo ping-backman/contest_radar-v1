@@ -1,3 +1,20 @@
+// Keep the Trusted Types compatibility hook used by the homepage.
+let trustedTypesPolicy;
+if (window.trustedTypes && typeof window.trustedTypes.createPolicy === 'function') {
+  try {
+    trustedTypesPolicy = window.trustedTypes.createPolicy('default', {
+      createHTML: value => value,
+      createScriptURL: value => value
+    });
+  } catch {
+    // A policy may already be registered by another script.
+  }
+}
+
+export function safeHTML(value) {
+  return trustedTypesPolicy ? trustedTypesPolicy.createHTML(String(value)) : String(value);
+}
+
 export function initBackToTop() {
   const button = document.querySelector('[data-back-to-top]');
   if (!button) return;
@@ -67,7 +84,8 @@ export function initImageFallbacks(root = document) {
   root.querySelectorAll('img[data-fallback]').forEach(image => {
     image.addEventListener('error', () => {
       const fallback = image.dataset.fallback;
-      if (fallback && image.src !== fallback) {
+      // Compare the literal attribute: image.src is normally an absolute URL.
+      if (fallback && image.getAttribute('src') !== fallback) {
         image.src = fallback;
       } else {
         image.removeAttribute('src');
