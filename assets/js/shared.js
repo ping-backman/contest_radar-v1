@@ -85,22 +85,15 @@ export function initImageFallbacks(root = document) {
 export function renderCard(item, index = 0) {
   const title = escapeHtml(item.title || 'Untitled competition');
   const slug = encodeURIComponent(item.slug || item.id || '');
+  
+  // FIX 1: Force Picsum images to 400x300 to save ~780KB of bandwidth
   const rawImg = item.imageUrl || item.imageUrl2 || '/assets/images/contest-placeholder.svg';
-  const img = escapeHtml(rawImg);
+  const img = rawImg.includes('picsum.photos') 
+    ? rawImg.replace(/\/\d+\/\d+$/, '/400/300') 
+    : escapeHtml(rawImg);
+    
   const fallback = escapeHtml(item.imageUrl2 || '/assets/images/contest-placeholder.svg');
   
-  const isAboveFold = index < 8;
-  const loading = isAboveFold ? 'eager' : 'lazy';
-  const fetchpriority = isAboveFold ? 'fetchpriority="high"' : '';
-  
-  let srcsetAttr = '';
-  let sizesAttr = '';
-  if (rawImg.includes('picsum.photos')) {
-    const base = rawImg.replace(/\/\d+\/\d+$/, '');
-    srcsetAttr = `srcset="${escapeHtml(base)}/400/300 400w, ${escapeHtml(base)}/800/600 800w"`;
-    sizesAttr = `sizes="(max-width: 520px) 100vw, (max-width: 780px) 50vw, (max-width: 1050px) 33vw, 25vw"`;
-  }
-
   const countryLabel = s => String(s || 'See official rules').split(/[;,\|]/).map(x => ({
     'GB': 'UK',
     'INT': 'International'
@@ -108,18 +101,41 @@ export function renderCard(item, index = 0) {
   
   const countries = escapeHtml(countryLabel(item.eligibleCountries));
 
-  return `<article class="contest-card">
-    <a class="contest-card__image-link" href="/competition.html?id=${slug}" target="_blank" rel="noopener noreferrer">
-      <img class="contest-card__image" src="${img}" ${srcsetAttr} ${sizesAttr} data-fallback="${fallback}" alt="${title}" loading="${loading}" decoding="async" ${fetchpriority}>
-    </a>
-    <div class="contest-card__body">
-      <h2 class="contest-card__title"><a href="/competition.html?id=${slug}" target="_blank" rel="noopener noreferrer">${title}</a></h2>
-      <p class="contest-card__fact">Prize: <span>${formatMoney(item.prizeValue, item.prizeCurrency)} value</span></p>
-      <p class="contest-card__fact">Eligibility: <span>${countries}</span></p>
-      <p class="contest-card__fact">Closing: <span>${formatDate(item.closingDate, item.timezone)}</span></p>
-      <a class="button button--primary contest-card__button" href="/competition.html?id=${slug}" target="_blank" rel="noopener noreferrer">View competition →</a>
-    </div>
-  </article>`;
+  // FIX 2: First 6 cards are above the fold. Make them 'eager' and 'high' priority.
+  const isAboveFold = index < 6; 
+  const loadingAttr = isAboveFold ? 'eager' : 'lazy';
+  const priorityAttr = isAboveFold ? ' fetchpriority="high"' : '';
+
+  // FIX 3: Unique aria-label to fix the "identical links" accessibility warning
+  const ariaLabel = `View competition details for ${title}`;
+
+  return `
+    <article class="contest-card">
+      <a class="contest-card__image-link" href="/competition.html?id=${slug}" target="_blank" rel="noopener noreferrer">
+        <img class="contest-card__image" 
+             src="${img}" 
+             data-fallback="${fallback}" 
+             alt="${title}" 
+             loading="${loadingAttr}" 
+             decoding="async"${priorityAttr}>
+      </a>
+      <div class="contest-card__body">
+        <h2 class="contest-card__title">
+          <a href="/competition.html?id=${slug}" target="_blank" rel="noopener noreferrer">${title}</a>
+        </h2>
+        <p class="contest-card__fact">Prize: <span>${formatMoney(item.prizeValue, item.prizeCurrency)} value</span></p>
+        <p class="contest-card__fact">Eligibility: <span>${countries}</span></p>
+        <p class="contest-card__fact">Closing: <span>${formatDate(item.closingDate, item.timezone)}</span></p>
+        <a class="button button--primary contest-card__button" 
+           href="/competition.html?id=${slug}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           aria-label="${ariaLabel}">
+          View competition →
+        </a>
+      </div>
+    </article>
+  `;
 }
 
 export function renderPagination({page, totalPages, queryString = ''}) {
