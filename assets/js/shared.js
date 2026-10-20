@@ -1,10 +1,10 @@
 // Keep the Trusted Types compatibility hook used by the homepage.
+// Dynamic HTML passed to safeHTML must be assembled from trusted templates and escaped values.
 let trustedTypesPolicy;
 if (window.trustedTypes && typeof window.trustedTypes.createPolicy === 'function') {
   try {
     trustedTypesPolicy = window.trustedTypes.createPolicy('default', {
-      createHTML: value => value,
-      createScriptURL: value => value
+      createHTML: value => value
     });
   } catch {
     // A policy may already be registered by another script.
@@ -52,7 +52,7 @@ export function formatMoney(value, currency = 'USD') {
       maximumFractionDigits: 0
     }).format(amount);
   } catch {
-    return `${currency || ''} ${amount.toLocaleString()}`.trim();
+    return `${escapeHtml(currency || '')} ${amount.toLocaleString()}`.trim();
   }
 }
 
@@ -86,6 +86,9 @@ export function initImageFallbacks(root = document) {
       const fallback = image.dataset.fallback;
       // Compare the literal attribute: image.src is normally an absolute URL.
       if (fallback && image.getAttribute('src') !== fallback) {
+        // Remove responsive candidates so they cannot override the fallback src.
+        image.removeAttribute('srcset');
+        image.removeAttribute('sizes');
         image.src = fallback;
       } else {
         image.removeAttribute('src');
