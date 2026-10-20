@@ -59,7 +59,7 @@ export function formatMoney(value, currency = 'USD') {
 export function formatDate(value, timezone = 'UTC') {
   if (!value) return 'Not stated';
 
-  const dateOnly = /^\\d{4}-\\d{2}-\\d{2}$/.test(String(value));
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(String(value));
   const date = new Date(dateOnly ? `${value}T12:00:00Z` : value);
   if (Number.isNaN(date.getTime())) return escapeHtml(value);
 
@@ -106,7 +106,7 @@ function normalizeImageURL(value, fallback) {
     const url = new URL(candidate, window.location.origin);
     const isRelative = candidate.startsWith('/') || candidate.startsWith('./') || candidate.startsWith('../');
     if (url.protocol !== 'https:' && url.protocol !== 'http:') return fallback;
-    if (!isRelative && !/^https?:\\/\\//i.test(candidate)) return fallback;
+    if (!isRelative && !/^https?:\/\//i.test(candidate)) return fallback;
     return isRelative ? candidate : url.href;
   } catch {
     return fallback;
@@ -122,8 +122,8 @@ function imageAttributes(value) {
 
   try {
     const url = new URL(safeURL, window.location.origin);
-    if (/(^|\\.)picsum\\.photos$/i.test(url.hostname)) {
-      const dimensions = url.pathname.match(/\\/(\\d+)\\/(\\d+)$/);
+    if (/(^|\.)picsum\.photos$/i.test(url.hostname)) {
+      const dimensions = url.pathname.match(/\/(\d+)\/(\d+)$/);
       if (dimensions) {
         const basePath = url.pathname.slice(0, dimensions.index);
         const small = new URL(url.href);
