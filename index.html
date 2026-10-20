@@ -1,21 +1,116 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Contest Radar — Discover competitions worth entering</title>
-  <meta name="description" content="Explore curated competitions and giveaways. Check prize values, eligibility, closing dates and official entry rules before entering.">
-  <meta name="theme-color" content="#0f1115"><meta property="og:type" content="website"><meta property="og:title" content="Contest Radar — Discover competitions worth entering"><meta property="og:description" content="Curated competitions with clear prize values, eligibility and closing dates.">
-  <link rel="icon" href="/assets/images/contest-placeholder.svg" type="image/svg+xml"><link rel="stylesheet" href="/assets/css/site.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contest Radar — Find your next opportunity</title>
+  <meta name="description" content="Explore curated competitions, compare the prize and eligibility at a glance, and follow the official rules before entering.">
+  
+  <!-- Preconnect to external origins -->
+  <link rel="preconnect" href="https://contest-radar-api.uilliam-maya.workers.dev" crossorigin>
+  <link rel="preconnect" href="https://picsum.photos" crossorigin>
+  <link rel="preconnect" href="https://fastly.picsum.photos" crossorigin>
+  
+  <!-- Modulepreload for JS dependencies -->
+  <link rel="modulepreload" href="/assets/js/api.js">
+  <link rel="modulepreload" href="/assets/js/config.js">
+  <link rel="modulepreload" href="/assets/js/shared.js">
+  
+  <!-- Critical Above-the-Fold CSS -->
+  <style>
+    :root{color-scheme:dark;--bg:#0f1115;--surface:#171a21;--surface-2:#1d222c;--text:#f4f6fb;--muted:#aab2c2;--line:#2a303b;--blue:#5c7cfa;--blue-hover:#7690ff;--radius:16px;--shadow:0 12px 36px rgba(0,0,0,.22);--content:1280px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);line-height:1.55}a{color:inherit;text-decoration:none}img{display:block;max-width:100%}button,input,select{font:inherit}.container{width:min(calc(100% - 40px),var(--content));margin-inline:auto}.site-header{position:sticky;top:0;z-index:20;background:rgba(15,17,21,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}.header-inner{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:inline-flex;align-items:center;gap:11px;font-weight:800;font-size:1.22rem;letter-spacing:-.04em}.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:var(--blue);color:white;font-size:1.1rem}.site-nav{display:flex;align-items:center;gap:22px;color:var(--muted);font-size:.94rem}.site-nav a:hover,.text-link:hover{color:white}.hero{padding:46px 0 24px}.eyebrow{margin:0 0 8px;color:#9fb0ff;font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em}.hero h1{max-width:760px;margin:0;font-size:clamp(2rem,4vw,3.2rem);line-height:1.08;letter-spacing:-.055em}.hero p{max-width:720px;color:var(--muted);margin:14px 0 0;font-size:1.03rem}.toolbar{display:grid;grid-template-columns:minmax(220px,1fr) 180px 190px auto;gap:10px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);margin:20px 0 24px}.field{min-width:0;width:100%;height:46px;padding:0 13px;border:1px solid var(--line);border-radius:10px;background:#101319;color:var(--text);outline:none}.field:focus{border-color:var(--blue);box-shadow:0 0 0 3px #5c7cfa2a}.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid transparent;border-radius:10px;font-weight:750;font-size:.92rem;cursor:pointer;transition:background .15s ease,border-color .15s ease,transform .15s ease}.button:hover{transform:translateY(-1px)}.button--primary{background:var(--blue);color:white}.button--primary:hover{background:var(--blue-hover)}.button--secondary{background:var(--surface-2);border-color:var(--line);color:var(--text)}.button--large{min-height:52px;padding:13px 20px}.results-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px;color:var(--muted);font-size:.9rem}.contest-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}.contest-card{min-width:0;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}.contest-card:hover{transform:translateY(-3px);border-color:#46537c;box-shadow:var(--shadow)}.contest-card__image-link{display:block;overflow:hidden;background:#202633;aspect-ratio:4/3}.contest-card__image{width:100%;height:100%;object-fit:cover;transition:transform .25s ease}.contest-card:hover .contest-card__image{transform:scale(1.025)}.contest-card__body{display:flex;flex:1;flex-direction:column;align-items:stretch;gap:9px;padding:15px}.contest-card__title{font-size:1.02rem;line-height:1.35;letter-spacing:-.02em;margin:0 0 2px;min-height:2.7em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.contest-card__title a:hover{color:#cbd5ff}.contest-card__fact{margin:0;color:#c7cedb;font-size:.84rem;line-height:1.45;overflow-wrap:anywhere}.contest-card__fact span{font-weight:750;color:#f1f3f9}.contest-card__button{width:100%;margin-top:auto;padding:10px 12px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    @media(max-width:1050px){.contest-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.toolbar{grid-template-columns:minmax(180px,1fr) 160px 170px auto}}
+    @media(max-width:780px){.container{width:min(calc(100% - 28px),var(--content))}.header-inner{min-height:64px}.site-nav{gap:13px;font-size:.85rem}.toolbar{grid-template-columns:1fr 1fr}.toolbar .search-field{grid-column:1/-1}.toolbar button{grid-column:1/-1}.contest-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.contest-card__body{padding:12px;gap:8px}.contest-card__title{font-size:.96rem}.contest-card__fact{font-size:.8rem}}
+    @media(max-width:520px){.site-nav{gap:12px}.site-nav a:nth-child(2){display:none}.hero{padding-top:34px}.hero h1{font-size:2.15rem}.toolbar{padding:10px;gap:8px}.contest-grid{grid-template-columns:minmax(0,1fr);gap:16px}.contest-card__image-link{aspect-ratio:16/9}.contest-card__body{padding:15px;gap:9px}.contest-card__title{font-size:1.08rem;min-height:0}.contest-card__fact{font-size:.88rem}.results-bar{align-items:flex-start;flex-direction:column;gap:3px}}
+    
+    /* Skeleton Screen Critical CSS */
+    .skeleton-card{min-width:0;overflow:hidden;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+    .skeleton-image{display:block;width:100%;aspect-ratio:4/3;background:linear-gradient(90deg,var(--surface-2) 25%,#2a303b 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite linear}
+    .skeleton-body{display:flex;flex:1;flex-direction:column;gap:12px;padding:15px}
+    .skeleton-line{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--surface-2) 25%,#2a303b 50%,var(--surface-2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite linear}
+    .skeleton-line.title{height:20px;width:85%}
+    .skeleton-line.short{width:60%}
+    .skeleton-line.button{height:40px;width:100%;margin-top:auto;border-radius:10px}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    @media(max-width:520px){.skeleton-image{aspect-ratio:16/9}}
+  </style>
+
+  <!-- Async load full stylesheet to eliminate render blocking -->
+  <link rel="preload" href="/assets/css/site.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/assets/css/site.css"></noscript>
 </head>
 <body>
-<header class="site-header"><div class="container header-inner"><a class="brand" href="/" aria-label="Contest Radar home"><span class="brand-mark" aria-hidden="true">✦</span><span>Contest Radar</span></a><nav class="site-nav" aria-label="Main navigation"><a href="/">Competitions</a><a href="/about.html">About</a></nav></div></header>
-<main class="container">
-  <section class="hero"><p class="eyebrow">Find your next opportunity</p><h1>Great prizes. Clear rules. Better discoveries.</h1><p>Explore curated competitions, compare the prize and eligibility at a glance, and follow the official rules before entering.</p></section>
-  <form class="toolbar" id="search-form" role="search"><label class="sr-only" for="search">Search competitions</label><input class="field search-field" id="search" name="q" type="search" placeholder="Search prizes, brands or competitions"><label class="sr-only" for="country">Eligibility country</label><select class="field" id="country" name="country"><option value="">All eligible countries</option><option value="US">United States</option><option value="GB">United Kingdom</option><option value="CA">Canada</option><option value="INT">International</option></select><label class="sr-only" for="sort">Sort competitions</label><select class="field" id="sort" name="sort"><option value="closing">Closing soon</option><option value="prize">Highest prize value</option><option value="newest">Recently verified</option><option value="title">Title A–Z</option></select><button class="button button--primary" type="submit">Find competitions <span aria-hidden="true">→</span></button></form>
-  <div class="results-bar"><span id="results-status" aria-live="polite">Loading competitions…</span><span>Check official rules before entering.</span></div>
-  <section id="contest-grid" class="contest-grid" aria-label="Competition listings"><div class="state-message">Loading competitions…</div></section>
-  <div id="pagination"></div>
-</main>
-<footer class="site-footer"><div class="container footer-inner"><span>© <span id="year">2026</span> Contest Radar</span><nav class="footer-links" aria-label="Footer"><a href="/about.html">About</a><a href="/privacy.html">Privacy</a><a href="/disclosure.html">Editorial &amp; disclosure</a></nav></div></footer>
-<button class="back-to-top" data-back-to-top aria-label="Back to top" title="Back to top">↑</button><script>document.querySelector('#year').textContent=new Date().getFullYear()</script><script type="module" src="/assets/js/home.js"></script>
-</body></html>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="Contest Radar Home">
+        <span class="brand-mark" aria-hidden="true">CR</span>
+        <span>Contest Radar</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/about.html">About</a>
+        <a href="/rules.html">Rules</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <p class="eyebrow">Find your next opportunity</p>
+      <h1>Great prizes. Clear rules. Better discoveries.</h1>
+      <p>Explore curated competitions, compare the prize and eligibility at a glance, and follow the official rules before entering.</p>
+    </section>
+
+    <form id="search-form" class="toolbar" role="search" aria-label="Filter competitions">
+      <label for="search" class="sr-only">Search competitions</label>
+      <input id="search" name="q" type="search" class="field search-field" placeholder="Search competitions" autocomplete="off">
+      
+      <label for="country" class="sr-only">Eligibility country</label>
+      <select id="country" name="country" class="field">
+        <option value="">All eligible countries</option>
+        <option value="US">United States</option>
+        <option value="GB">United Kingdom</option>
+        <option value="CA">Canada</option>
+        <option value="INT">International</option>
+      </select>
+      
+      <label for="sort" class="sr-only">Sort competitions</label>
+      <select id="sort" name="sort" class="field">
+        <option value="closing">Closing soon</option>
+        <option value="prize">Highest prize value</option>
+        <option value="newest">Recently verified</option>
+        <option value="title">Title A–Z</option>
+      </select>
+      
+      <button class="button button--primary" type="submit">Find competitions →</button>
+    </form>
+
+    <div class="results-bar">
+      <p id="results-status" aria-live="polite"></p>
+    </div>
+
+    <section id="contest-grid" class="contest-grid" aria-label="Competition listings">
+      <!-- Skeleton screens injected here by JS -->
+    </section>
+
+    <nav id="pagination" class="pagination" aria-label="Pagination"></nav>
+    
+    <p class="official-note" style="text-align:center; margin-top:20px;">Check official rules before entering.</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© 2026 Contest Radar. Data provided for discovery; always read official rules.</p>
+      <div class="footer-links">
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" data-back-to-top aria-hidden="true" tabindex="-1" aria-label="Back to top">↑</button>
+
+  <script type="module" src="/assets/js/home.js"></script>
+</body>
+</html>
