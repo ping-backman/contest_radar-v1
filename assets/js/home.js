@@ -1,5 +1,5 @@
 import { fetchCompetitions } from './api.js';
-import { renderCard, renderPagination, initBackToTop, initImageFallbacks, escapeHtml } from './shared.js';
+import { renderCard, renderPagination, initBackToTop, initImageFallbacks, escapeHtml, safeHTML } from './shared.js';
 import { PAGE_SIZE } from './config.js';
 
 const form = document.querySelector('#search-form');
@@ -51,7 +51,7 @@ function renderSkeletons() {
 
 async function load() {
   grid.setAttribute('aria-busy', 'true');
-  grid.innerHTML = renderSkeletons();
+  grid.innerHTML = safeHTML(renderSkeletons());
   status.textContent = '';
   pagination.innerHTML = '';
 
@@ -69,31 +69,31 @@ async function load() {
     }
 
     if (!data.competitions.length) {
-      grid.innerHTML = '<div class="state-message"><h2>No competitions found</h2><p>Try another search or country.</p></div>';
+      grid.innerHTML = safeHTML('<div class="state-message"><h2>No competitions found</h2><p>Try another search or country.</p></div>');
       status.textContent = '0 competitions';
       return;
     }
 
-    grid.innerHTML = data.competitions.map((competition, index) => renderCard(competition, index)).join('');
+    grid.innerHTML = safeHTML(data.competitions.map((competition, index) => renderCard(competition, index)).join(''));
     const pageSize = Number(data.pageSize) || PAGE_SIZE;
     const total = Number(data.total) || data.competitions.length;
     const currentPage = Number(data.page) || page;
 
     status.textContent = `Showing ${(currentPage - 1) * pageSize + 1}–${Math.min(currentPage * pageSize, total)} of ${total} competitions`;
-    pagination.innerHTML = renderPagination({
+    pagination.innerHTML = safeHTML(renderPagination({
       page: currentPage,
       totalPages: Number(data.totalPages) || 1,
       queryString: queryForPage()
-    });
+    }));
     initImageFallbacks(grid);
   } catch (error) {
-    grid.innerHTML = `
+    grid.innerHTML = safeHTML(`
       <div class="state-message state-message--error">
         <h2>We couldn't load competitions</h2>
         <p>${escapeHtml(error instanceof Error ? error.message : 'An unexpected error occurred.')}</p>
         <button type="button" class="button button--secondary" id="retry">Try again</button>
       </div>
-    `;
+    `);
     document.querySelector('#retry')?.addEventListener('click', load);
   } finally {
     grid.setAttribute('aria-busy', 'false');
