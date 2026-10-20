@@ -43,7 +43,7 @@ function renderSkeletons() {
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
         <div class="skeleton-line short"></div>
-        <div class="skeleton-line button"></div>
+        <div class="skeleton-line action"></div>
       </div>
     </article>
   `).join('');
