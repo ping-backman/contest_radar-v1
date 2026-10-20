@@ -77,16 +77,30 @@ export function initImageFallbacks(root = document) {
   });
 }
 
+function normalizeImageURL(value, fallback) {
+  const candidate = String(value || '').trim();
+  if (!candidate) return fallback;
+
+  try {
+    const url = new URL(candidate, window.location.origin);
+    const isRelative = candidate.startsWith('/') || candidate.startsWith('./') || candidate.startsWith('../');
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') return fallback;
+    if (!isRelative && !/^https?:\\/\\//i.test(candidate)) return fallback;
+    return isRelative ? candidate : url.href;
+  } catch {
+    return fallback;
+  }
+}
+
 function imageAttributes(value) {
   const fallback = '/assets/images/contest-placeholder.svg';
-  const raw = String(value || fallback).trim() || fallback;
-  let src = raw;
+  const safeURL = normalizeImageURL(value, fallback);
+  let src = safeURL;
   let srcset = '';
   let sizes = '';
 
-  // Keep Picsum image variants responsive while requesting appropriately sized files.
   try {
-    const url = new URL(raw);
+    const url = new URL(safeURL, window.location.origin);
     if (/(^|\\.)picsum\\.photos$/i.test(url.hostname)) {
       const dimensions = url.pathname.match(/\\/(\\d+)\\/(\\d+)$/);
       if (dimensions) {
@@ -101,23 +115,24 @@ function imageAttributes(value) {
       }
     }
   } catch {
-    // Relative URLs and non-URL values are left unchanged and HTML-escaped below.
+    src = fallback;
   }
 
-  return {
-    src: escapeHtml(src),
-    srcset,
-    sizes,
-    fallback: escapeHtml(raw === fallback ? fallback : fallback)
-  };
+  return { src: escapeHtml(src), srcset, sizes };
 }
 
 export function renderCard(item, index = 0) {
   const title = escapeHtml(item.title || 'Untitled competition');
   const slug = encodeURIComponent(item.slug || item.id || '');
-  const imageUrl = item.imageUrl || item.imageUrl2 || '/assets/images/contest-placeholder.svg';
-  const image = imageAttributes(imageUrl);
-  const fallback = escapeHtml(item.imageUrl2 || '/assets/images/contest-placeholder.svg');
+  const fallback = normalizeImageURL(
+    item.imageUrl2 || '/assets/images/contest-placeholder.svg',
+    '/assets/images/contest-placeholder.svg'
+  );
+  const imageURL = normalizeImageURL(
+    item.imageUrl || item.imageUrl2 || '/assets/images/contest-placeholder.svg',
+    '/assets/images/contest-placeholder.svg'
+  );
+  const image = imageAttributes(imageURL);
 
   const countryLabel = value => String(value || 'See official rules').split(/[;,|]/).map(part => ({
     GB: 'UK',
@@ -133,7 +148,7 @@ export function renderCard(item, index = 0) {
   return `
     <article class="contest-card">
       <a class="contest-card__image-link" href="/competition.html?id=${slug}" target="_blank" rel="noopener noreferrer" aria-label="View ${title}">
-        <img class="contest-card__image" src="${image.src}"${image.srcset}${image.sizes} data-fallback="${fallback}" alt="${title}" loading="${loading}" decoding="async"${priority}>
+        <img class="contest-card__image" src="${image.src}"${image.srcset}${image.sizes} data-fallback="${escapeHtml(fallback)}" alt="${title}" loading="${loading}" decoding="async"${priority}>
       </a>
       <div class="contest-card__body">
         <h2 class="contest-card__title">
