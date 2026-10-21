@@ -155,7 +155,7 @@ button,input,select{font:inherit}
 .skeleton-detail-heading{width:48%;height:24px;margin:0 0 15px;border-radius:6px;background:var(--surface-2)}
 .detail-copy--skeleton .detail-copy__main>.skeleton-line{margin:10px 0}
 .detail-copy--skeleton .rules-panel .skeleton-line{margin:10px 0}
-.similar-empty{grid-column:1/-1}
+.similar-empty{grid-column:1/-1;min-height:390px;display:flex;align-items:center;justify-content:center}@media(max-width:520px){.similar-empty{min-height:350px}}
 @media(max-width:780px){
   .detail-hero--skeleton .detail-hero__media{max-height:none}
   .skeleton-detail-image{min-height:0}
