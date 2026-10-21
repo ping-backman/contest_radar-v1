@@ -9,33 +9,33 @@ const sortInput = document.querySelector('#sort');
 const grid = document.querySelector('#contest-grid');
 const status = document.querySelector('#results-status');
 const pagination = document.querySelector('#pagination');
-const params = new URLSearchParams(location.search);
 
+const params = new URLSearchParams(location.search);
 queryInput.value = params.get('q') || '';
 countryInput.value = params.get('country') || '';
 sortInput.value = params.get('sort') || 'closing';
 const page = Math.max(1, Number.parseInt(params.get('page') || '1', 10) || 1);
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
+form.addEventListener('submit', event => {
+  event.preventDefault();
   const next = new URLSearchParams();
   if (queryInput.value.trim()) next.set('q', queryInput.value.trim());
   if (countryInput.value) next.set('country', countryInput.value);
   if (sortInput.value !== 'closing') next.set('sort', sortInput.value);
-  location.href = '/?' + next.toString();
+  const query = next.toString();
+  location.href = query ? `/?${query}` : '/';
 });
 
-function queryForPage(n) {
-  const p = new URLSearchParams();
-  if (queryInput.value.trim()) p.set('q', queryInput.value.trim());
-  if (countryInput.value) p.set('country', countryInput.value);
-  if (sortInput.value !== 'closing') p.set('sort', sortInput.value);
-  return p.toString();
+function queryForPage() {
+  const query = new URLSearchParams();
+  if (queryInput.value.trim()) query.set('q', queryInput.value.trim());
+  if (countryInput.value) query.set('country', countryInput.value);
+  if (sortInput.value !== 'closing') query.set('sort', sortInput.value);
+  return query.toString();
 }
 
-async function load() {
-  // Render 8 skeleton cards matching the exact dimensions of the contest cards
-  const skeletons = Array.from({length: 8}, () => `
+function renderSkeletons() {
+  return Array.from({ length: 8 }, () => `
     <article class="skeleton-card" aria-hidden="true">
       <div class="skeleton-image"></div>
       <div class="skeleton-body">
@@ -43,15 +43,18 @@ async function load() {
         <div class="skeleton-line"></div>
         <div class="skeleton-line short"></div>
         <div class="skeleton-line short"></div>
-        <div class="skeleton-line button"></div>
+        <div class="skeleton-line action"></div>
       </div>
     </article>
   `).join('');
-  
-  grid.innerHTML = safeHTML(skeletons);
+}
+
+async function load() {
+  grid.setAttribute('aria-busy', 'true');
+  grid.innerHTML = safeHTML(renderSkeletons());
   status.textContent = '';
   pagination.innerHTML = '';
-  
+
   try {
     const data = await fetchCompetitions({
       q: queryInput.value.trim(),
@@ -60,30 +63,40 @@ async function load() {
       page,
       limit: PAGE_SIZE
     });
-    
+
+    if (!Array.isArray(data.competitions)) {
+      throw new Error('The API returned an invalid competitions list.');
+    }
+
     if (!data.competitions.length) {
-      grid.innerHTML = safeHTML(`<div class="state-message"><h2>No competitions found</h2><p>Try another search or country.</p></div>`);
+      grid.innerHTML = safeHTML('<div class="state-message"><h2>No competitions found</h2><p>Try another search or country.</p></div>');
       status.textContent = '0 competitions';
       return;
     }
-    
-    grid.innerHTML = safeHTML(data.competitions.map((c, i) => renderCard(c, i)).join(''));
-    status.textContent = `Showing ${(data.page - 1) * data.pageSize + 1}–${Math.min(data.page * data.pageSize, data.total)} of ${data.total} competitions`;
+
+    grid.innerHTML = safeHTML(data.competitions.map((competition, index) => renderCard(competition, index)).join(''));
+    const pageSize = Number(data.pageSize) || PAGE_SIZE;
+    const total = Number(data.total) || data.competitions.length;
+    const currentPage = Number(data.page) || page;
+
+    status.textContent = `Showing ${(currentPage - 1) * pageSize + 1}–${Math.min(currentPage * pageSize, total)} of ${total} competitions`;
     pagination.innerHTML = safeHTML(renderPagination({
-      page: data.page,
-      totalPages: data.totalPages,
-      queryString: queryForPage(page)
+      page: currentPage,
+      totalPages: Number(data.totalPages) || 1,
+      queryString: queryForPage()
     }));
     initImageFallbacks(grid);
-  } catch (err) {
+  } catch (error) {
     grid.innerHTML = safeHTML(`
       <div class="state-message state-message--error">
         <h2>We couldn't load competitions</h2>
-        <p>${escapeHtml(err.message)}</p>
-        <button id="retry" class="button button--secondary">Try again</button>
+        <p>${escapeHtml(error instanceof Error ? error.message : 'An unexpected error occurred.')}</p>
+        <button type="button" class="button button--secondary" id="retry">Try again</button>
       </div>
     `);
     document.querySelector('#retry')?.addEventListener('click', load);
+  } finally {
+    grid.setAttribute('aria-busy', 'false');
   }
 }
 
