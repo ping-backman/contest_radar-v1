@@ -13,9 +13,9 @@ A lean, manually triggered Python discovery prototype. It searches public web re
 
 ## CSV fields
 
-The export includes the frontend/API concepts currently observed in the repository: title, slug, category, summary, prize value/currency, closing date/timezone, eligible countries, minimum age, entry URL, rules URL, brand, image URL/image URL 2, and status. Research columns preserve source URL, source domain, discovery query, score, evidence text, image provenance, review state, notes, timestamps and run ID.
+The first 23 CSV columns now follow the header order documented in the current GAS source: `id,title,slug,brand,summary,category,prize_value,prize_currency,eligible_countries,minimum_age,entry_url,rules_url,image_url,image_url2,start_date,closing_date,timezone,status,source_url,verified_at,last_checked_at,verification_notes,duplicate_key`. Research/provenance columns follow those 23 fields.
 
-The exact live Google Sheet header row is not present in this repository. **Before bulk copy/import into the master sheet, compare the first 16 CSV columns with the actual sheet headers and order.** This tool intentionally does not connect to Google Sheets.
+The live sheet itself is not connected, so check its actual first-row headers once before bulk copying/importing in case the sheet has drifted from the GAS contract. This tool intentionally does not connect to Google Sheets.
 
 ## Quality rules and limitations
 
