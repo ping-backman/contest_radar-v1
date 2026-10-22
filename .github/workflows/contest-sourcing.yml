@@ -1,0 +1,85 @@
+name: Contest Radar Sourcing
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_candidates:
+        description: "Maximum candidates to stage (1–100)"
+        required: true
+        default: "50"
+        type: string
+      countries:
+        description: "Comma-separated country codes: US,UK,CA"
+        required: true
+        default: "US,UK,CA"
+        type: string
+      categories:
+        description: "all or comma-separated category keys"
+        required: true
+        default: "all"
+        type: string
+      max_queries:
+        description: "Maximum discovery queries (1–18)"
+        required: true
+        default: "18"
+        type: string
+      max_results_per_query:
+        description: "Results per query (1–10)"
+        required: true
+        default: "6"
+        type: string
+      min_score:
+        description: "Minimum heuristic score (0–100)"
+        required: true
+        default: "20"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contest-radar-sourcing-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: contest-sourcing/requirements.txt
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check -r contest-sourcing/requirements.txt
+      - name: Run unit tests
+        run: python -m unittest discover -s contest-sourcing/tests -v
+      - name: Discover and stage contest candidates
+        env:
+          TARGET_CANDIDATES: ${{ inputs.target_candidates }}
+          COUNTRIES: ${{ inputs.countries }}
+          CATEGORIES: ${{ inputs.categories }}
+          MAX_QUERIES: ${{ inputs.max_queries }}
+          MAX_RESULTS_PER_QUERY: ${{ inputs.max_results_per_query }}
+          MIN_SCORE: ${{ inputs.min_score }}
+        run: |
+          python contest-sourcing/pipeline.py \
+            --target "$TARGET_CANDIDATES" \
+            --countries "$COUNTRIES" \
+            --categories "$CATEGORIES" \
+            --max-queries "$MAX_QUERIES" \
+            --max-results-per-query "$MAX_RESULTS_PER_QUERY" \
+            --min-score "$MIN_SCORE" \
+            --output-dir output
+      - name: Upload CSV and run report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: contest-radar-staging-${{ github.run_id }}
+          path: output/
+          if-no-files-found: warn
+          retention-days: 30
