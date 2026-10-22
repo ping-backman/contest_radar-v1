@@ -20,6 +20,15 @@ class PipelineTests(unittest.TestCase):
     def test_parse_date(self):
         self.assertEqual(pipeline.parse_date("October 31, 2027"), "2027-10-31")
 
+    def test_master_columns_match_gas_contract(self):
+        expected = [
+            "id","title","slug","brand","summary","category","prize_value","prize_currency",
+            "eligible_countries","minimum_age","entry_url","rules_url","image_url","image_url2",
+            "start_date","closing_date","timezone","status","source_url","verified_at","last_checked_at",
+            "verification_notes","duplicate_key"
+        ]
+        self.assertEqual(pipeline.FIELDS[:23], expected)
+
     def test_frontend_and_review_fields_are_present(self):
         self.assertIn("image_url", pipeline.FIELDS)
         self.assertIn("status", pipeline.FIELDS)
