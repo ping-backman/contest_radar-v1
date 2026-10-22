@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "notes": "Discovery leads only; verify every opportunity on the official organizer or sponsor page.",
+  "countries": {"US": "United States", "UK": "United Kingdom", "CA": "Canada"},
+  "categories": {
+    "cash_sweepstakes": ["cash prize sweepstakes", "win cash giveaway contest", "major prize sweepstakes"],
+    "technology": ["technology giveaway laptop smartphone contest", "tech brand electronics sweepstakes"],
+    "travel_experiences": ["travel vacation trip giveaway contest", "tickets experiences entertainment sweepstakes"],
+    "education_career": ["scholarship competition application open", "student scholarship contest deadline"],
+    "creative_skill": ["writing photography design competition prize", "creative skills contest open submissions"],
+    "lifestyle": ["home lifestyle wellness shopping giveaway contest", "consumer brand prize sweepstakes"]
+  },
+  "excluded_terms": ["crypto investment", "guaranteed profit", "pay to claim", "wire transfer", "seed phrase", "telegram only"]
+}
