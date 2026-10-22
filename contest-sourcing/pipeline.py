@@ -13,9 +13,13 @@ from ddgs import DDGS
 
 HERE = Path(__file__).resolve().parent
 FIELDS = [
-    "title","slug","category","summary","prize_value","prize_currency","closing_date","timezone",
-    "eligible_countries","minimum_age","entry_url","rules_url","brand","image_url","image_url2","status",
-    "candidate_id","source_url","discovered_at_utc","checked_at_utc","source_domain","discovery_query",
+    # Exact master-sheet header order from the current Contest Radar GAS source.
+    "id","title","slug","brand","summary","category","prize_value","prize_currency",
+    "eligible_countries","minimum_age","entry_url","rules_url","image_url","image_url2",
+    "start_date","closing_date","timezone","status","source_url","verified_at","last_checked_at",
+    "verification_notes","duplicate_key",
+    # Staging-only research and provenance fields follow the master columns.
+    "candidate_id","discovered_at_utc","checked_at_utc","source_domain","discovery_query",
     "score","review_status","review_notes","evidence_text","image_source_url","image_rights_notes","run_id"
 ]
 LABELS = {
@@ -45,7 +49,7 @@ def clean(value, limit=1500):
 def normalize_url(value):
     try:
         p = urlparse((value or "").strip())
-        if p.scheme not in ("http","https") or not p.netloc: return ""
+        if p.scheme != "https" or not p.netloc: return ""
         host = p.netloc.lower().removeprefix("www.")
         path = re.sub(r"/{2,}", "/", p.path or "/").rstrip("/") or "/"
         query = "&".join(q for q in p.query.split("&") if q and not q.lower().startswith(("utm_","fbclid=","gclid=")))
@@ -110,12 +114,13 @@ def extract(result, cat, query, run_id, discovered, cfg):
     if not raw_url or not raw_title: return None
     if any(term in (raw_title+" "+snippet).lower() for term in cfg["excluded_terms"]): return None
     soup,final_url,error=fetch_page(raw_url)
-    title=raw_title; summary=snippet; image=""; text=snippet; rules=""; entry=""; eligible=""; age=""; prize=""
+    title=raw_title; summary=snippet; image=""; text=snippet; rules=""; entry=""; eligible=""; age=""; prize=""; brand=""
     if soup:
         title=meta(soup,"og:title","twitter:title") or (soup.title.get_text(" ",strip=True) if soup.title else "") or raw_title
         summary=meta(soup,"description","og:description","twitter:description") or snippet
+        brand=meta(soup,"og:site_name")
         image=meta(soup,"og:image","twitter:image")
-        if image: image=urljoin(final_url,image)
+        if image: image=normalize_url(urljoin(final_url,image))
         text=clean(soup.get_text(" ",strip=True),5000)
         for anchor in soup.find_all("a",href=True):
             label=clean(anchor.get_text(" ",strip=True),100).lower()
@@ -159,13 +164,21 @@ def extract(result, cat, query, run_id, discovered, cfg):
     elif prize.startswith(("€","EUR")): currency="EUR"
     elif prize.startswith(("CA$","CAD")): currency="CAD"
     elif prize.startswith(("US$","USD")): currency="USD"
+    elif prize.startswith("$"):
+        currency="CAD" if "canada" in query.lower() else ("GBP" if "united kingdom" in query.lower() else "USD")
+    checked=now()
+    note_text="; ".join(notes)
     return {
-      "title":title,"slug":slugify(title),"category":LABELS[cat],"summary":summary,"prize_value":prize,"prize_currency":currency,
-      "closing_date":closing,"timezone":"UTC","eligible_countries":eligible,"minimum_age":age,"entry_url":entry,"rules_url":rules,
-      "brand":"","image_url":image,"image_url2":"","status":"pending_review","candidate_id":candidate_id,"source_url":source,
-      "discovered_at_utc":discovered,"checked_at_utc":now(),"source_domain":domain(source),"discovery_query":query,
-      "score":score,"review_status":review,"review_notes":"; ".join(notes),"evidence_text":clean(text,1200),
-      "image_source_url":image,"image_rights_notes":"Verify permission and usage terms; public visibility does not imply reuse rights","run_id":run_id
+      "id":candidate_id,"title":title,"slug":slugify(title),"brand":brand,"summary":summary,
+      "category":LABELS[cat],"prize_value":prize,"prize_currency":currency,
+      "eligible_countries":eligible,"minimum_age":age,"entry_url":entry,"rules_url":rules,
+      "image_url":image,"image_url2":"","start_date":"","closing_date":closing,"timezone":"UTC",
+      "status":"pending_review","source_url":source,"verified_at":"","last_checked_at":checked,
+      "verification_notes":note_text,"duplicate_key":source,"candidate_id":candidate_id,
+      "discovered_at_utc":discovered,"checked_at_utc":checked,"source_domain":domain(source),
+      "discovery_query":query,"score":score,"review_status":review,"review_notes":note_text,
+      "evidence_text":clean(text,1200),"image_source_url":image,
+      "image_rights_notes":"Verify permission and usage terms; public visibility does not imply reuse rights","run_id":run_id
     }
 
 def main():
