@@ -206,12 +206,28 @@ def main():
             title_key=re.sub(r"[^a-z0-9]+","",row["title"].lower()); url_key=row["source_url"]
             if not url_key or url_key in seen_urls or title_key in seen_titles: continue
             seen_urls.add(url_key); seen_titles.add(title_key); rows.append(row); added+=1
-            if len(rows)>=args.target: break
+            if len(rows)>=args.target*3: break
             time.sleep(0.25)
         stats.append({"query":query,"results_seen":len(results),"candidates_added":added})
         if len(rows)>=args.target: break
         time.sleep(0.5)
-    rows.sort(key=lambda row:int(row["score"]),reverse=True)
+    # Rank within each category, then round-robin across categories so the batch is not
+    # dominated by whichever category happened to return the most search results.
+    grouped={label:[] for label in LABELS.values()}
+    for row in rows:
+        grouped.setdefault(row["category"],[]).append(row)
+    for group in grouped.values():
+        group.sort(key=lambda row:int(row["score"]),reverse=True)
+    balanced=[]
+    while len(balanced)<args.target:
+        added=False
+        for label in LABELS.values():
+            if grouped.get(label):
+                balanced.append(grouped[label].pop(0))
+                added=True
+                if len(balanced)>=args.target: break
+        if not added: break
+    rows=balanced
     output=Path(args.output_dir); output.mkdir(parents=True,exist_ok=True)
     csv_path=output/"contest-radar-staging.csv"; report_path=output/"run-report.json"
     with csv_path.open("w",newline="",encoding="utf-8-sig") as handle:
