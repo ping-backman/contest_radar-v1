@@ -77,7 +77,7 @@ def allowed_by_robots(url):
         parts = urlparse(url)
         rp.set_url(f"{parts.scheme}://{parts.netloc}/robots.txt")
         try:
-            response = requests.get(rp.url, headers={"User-Agent":UA}, timeout=5)
+            response = requests.get(rp.url, headers={"User-Agent":UA}, timeout=3)
             rp.parse(response.text.splitlines() if response.status_code < 400 else [])
         except requests.RequestException:
             rp.parse([])
@@ -88,7 +88,7 @@ def allowed_by_robots(url):
 def fetch_page(url):
     if not allowed_by_robots(url): return None, url, "Blocked by robots.txt; skipped"
     try:
-        response = requests.get(url,headers={"User-Agent":UA,"Accept":"text/html,application/xhtml+xml"},timeout=12,allow_redirects=True,stream=True)
+        response = requests.get(url,headers={"User-Agent":UA,"Accept":"text/html,application/xhtml+xml"},timeout=8,allow_redirects=True,stream=True)
         if response.status_code >= 400: return None,url,f"HTTP {response.status_code}"
         if "html" not in response.headers.get("content-type","").lower(): return None,url,"Non-HTML page"
         chunks=[]; size=0
@@ -208,7 +208,7 @@ def main():
     for index,(cat,query) in enumerate(queries,1):
         print(f"[{index}/{len(queries)}] {query}")
         try:
-            with DDGS(timeout=15) as search:
+            with DDGS(timeout=10) as search:
                 results=list(search.text(query,max_results=args.max_results_per_query,safesearch="moderate"))
         except Exception as exc:
             print(f"[WARN] Search failed: {type(exc).__name__}",file=sys.stderr); results=[]
