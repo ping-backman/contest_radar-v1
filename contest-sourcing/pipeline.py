@@ -209,7 +209,7 @@ def main():
             if len(rows)>=args.target*3: break
             time.sleep(0.25)
         stats.append({"query":query,"results_seen":len(results),"candidates_added":added})
-        if len(rows)>=args.target: break
+        if len(rows)>=args.target*3: break
         time.sleep(0.5)
     # Rank within each category, then round-robin across categories so the batch is not
     # dominated by whichever category happened to return the most search results.
