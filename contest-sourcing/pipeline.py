@@ -31,8 +31,8 @@ CATEGORY_TERMS = {
     "creative_skill":["photography","writing","design","art","film","creative","competition"],
     "lifestyle":["home","lifestyle","wellness","beauty","shopping","garden","kitchen"]
 }
-PRIZE_RE = re.compile(r"(?:US\\$|CA\\$|USD|CAD|GBP|EUR|\\$|£|€)\\s?\\d[\\d,]*(?:\\.\\d{1,2})?(?:\\s?(?:k|K|million|M))?")
-DATE_RE = re.compile(r"(?:deadline|closes?|closing date|ends? on|entries close|enter by|must enter by)\\D{0,35}([A-Za-z]{3,9}\\.?\\s+\\d{1,2},?\\s+20\\d{2}|\\d{1,2}[/-]\\d{1,2}[/-]20\\d{2}|20\\d{2}-\\d{2}-\\d{2})", re.I)
+PRIZE_RE = re.compile(r"(?:US\$|CA\$|USD|CAD|GBP|EUR|\$|£|€)\s?\d[\d,]*(?:\.\d{1,2})?(?:\s?(?:k|K|million|M))?")
+DATE_RE = re.compile(r"(?:deadline|closes?|closing date|ends? on|entries close|enter by|must enter by)\D{0,35}([A-Za-z]{3,9}\.?\s+\d{1,2},?\s+20\d{2}|\d{1,2}[/-]\d{1,2}[/-]20\d{2}|20\d{2}-\d{2}-\d{2})", re.I)
 ROBOTS = {}
 UA = "ContestRadarResearchBot/0.1 (public contest discovery; low-rate; manual review)"
 
@@ -40,7 +40,7 @@ def now():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
 def clean(value, limit=1500):
-    return re.sub(r"\\s+", " ", str(value or "")).strip()[:limit]
+    return re.sub(r"\s+", " ", str(value or "")).strip()[:limit]
 
 def normalize_url(value):
     try:
@@ -125,7 +125,7 @@ def extract(result, cat, query, run_id, discovered, cfg):
             if not entry and any(x in label for x in ("enter now","enter here","submit entry","apply now","enter competition")): entry=href
         country_terms={"US":["united states","u.s. residents","us residents","50 states"],"UK":["united kingdom","uk residents","great britain"],"CA":["canada","canadian residents","canada residents"]}
         eligible=",".join(code for code,terms in country_terms.items() if any(term in text.lower() for term in terms))
-        age_match=re.search(r"(?:must be|aged?|age of)\\s*(?:at least\\s*)?(18|19|21)\\s*(?:years? old|\\+|or older)",text,re.I)
+        age_match=re.search(r"(?:must be|aged?|age of)\s*(?:at least\s*)?(18|19|21)\s*(?:years? old|\+|or older)",text,re.I)
         if age_match: age=age_match.group(1)
         for prize_match in PRIZE_RE.finditer(text):
             context=(text[max(0,prize_match.start()-90):prize_match.start()]+" "+text[prize_match.end():prize_match.end()+90]).lower()
